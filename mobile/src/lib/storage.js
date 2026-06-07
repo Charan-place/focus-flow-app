@@ -11,6 +11,7 @@ const KEYS = {
   timerState: 'ff_timerState',
   token: 'ff_token',
   user: 'ff_user',
+  guest: 'ff_guest',
 };
 
 export const DEFAULT_SETTINGS = {
@@ -72,6 +73,9 @@ export const storage = {
 
   getUser: () => getJSON(KEYS.user, null),
   setUser: (v) => (v ? setJSON(KEYS.user, v) : AsyncStorage.removeItem(KEYS.user)),
+
+  getGuestFlag: () => getJSON(KEYS.guest, false),
+  setGuestFlag: (v) => setJSON(KEYS.guest, !!v),
 
   clearAll: () => AsyncStorage.multiRemove(Object.values(KEYS)),
   clearAuth: () => AsyncStorage.multiRemove([KEYS.token, KEYS.user]),

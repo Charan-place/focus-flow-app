@@ -4,14 +4,14 @@
 //   pushing local changes up.
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
 import Constants from 'expo-constants';
+import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 
 import { api } from '../lib/api';
 import { storage } from '../lib/storage';
-
-WebBrowser.maybeCompleteAuthSession();
 
 const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
@@ -21,15 +21,21 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState(null);
+  // Has the user made a choice yet (signed in OR picked guest)?
+  // Gates the app: false → show AuthScreen; true → show the app.
+  const [hasEntered, setHasEntered] = useState(false);
 
   const extra = Constants.expoConfig?.extra || {};
 
-  // Google OAuth hook (returns a request + a response we watch).
-  const [, googleResponse, googlePrompt] = Google.useAuthRequest({
-    webClientId: extra.googleWebClientId,
-    iosClientId: extra.googleIosClientId,
-    androidClientId: extra.googleAndroidClientId,
-  });
+  // Configure native Google sign-in once. webClientId is REQUIRED — it's what
+  // makes Google return an idToken we can verify on our server.
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: extra.googleWebClientId,
+      iosClientId: extra.googleIosClientId,
+      offlineAccess: false,
+    });
+  }, []);
 
   // Restore session on launch.
   useEffect(() => {
@@ -37,11 +43,16 @@ export function AuthProvider({ children }) {
       try {
         const token = await storage.getToken();
         const savedUser = await storage.getUser();
+        const guestChosen = await storage.getGuestFlag();
         if (token && savedUser) {
           setUser(savedUser);
+          setHasEntered(true);
           // Refresh in background; ignore failures (offline).
           api.me().then((u) => { setUser(u.user); storage.setUser(u.user); }).catch(() => {});
           await pullAndMerge();
+        } else if (guestChosen) {
+          // Returning guest — skip the auth screen.
+          setHasEntered(true);
         }
       } finally {
         setLoading(false);
@@ -49,29 +60,13 @@ export function AuthProvider({ children }) {
     })();
   }, []);
 
-  // Handle Google response.
-  useEffect(() => {
-    if (googleResponse?.type === 'success') {
-      const idToken = googleResponse.authentication?.idToken || googleResponse.params?.id_token;
-      if (idToken) finishOAuth(() => api.oauthGoogle(idToken));
-    }
-  }, [googleResponse]);
-
   async function persistSession(res) {
     await storage.setToken(res.token);
     await storage.setUser(res.user);
+    await storage.setGuestFlag(false);
     setUser(res.user);
+    setHasEntered(true); // route into the app
     await pullAndMerge();
-  }
-
-  async function finishOAuth(call) {
-    setError(null);
-    try {
-      const res = await call();
-      await persistSession(res);
-    } catch (e) {
-      setError(e.message);
-    }
   }
 
   // ── Public actions ──
@@ -89,18 +84,37 @@ export function AuthProvider({ children }) {
 
   const loginGoogle = useCallback(async () => {
     setError(null);
-    await googlePrompt();
-  }, [googlePrompt]);
+    try {
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const result = await GoogleSignin.signIn();
+      // idToken location differs slightly across versions.
+      const idToken = result?.data?.idToken || result?.idToken;
+      if (!idToken) {
+        setError('Google sign-in did not return a token.');
+        return;
+      }
+      const res = await api.oauthGoogle(idToken);
+      await persistSession(res);
+    } catch (e) {
+      if (e.code === statusCodes.SIGN_IN_CANCELLED) return; // user backed out
+      if (e.code === statusCodes.IN_PROGRESS) return;
+      setError(e.message || 'Google sign-in failed');
+    }
+  }, []);
 
   const continueAsGuest = useCallback(async () => {
     // Guest = no token, no user. App runs purely on local storage.
     setUser(null);
     await storage.clearAuth();
+    await storage.setGuestFlag(true);
+    setHasEntered(true); // route into the app
   }, []);
 
   const logout = useCallback(async () => {
     await storage.clearAuth();
+    await storage.setGuestFlag(false);
     setUser(null);
+    setHasEntered(false); // back to the auth screen
   }, []);
 
   // ── Sync ──
@@ -153,6 +167,7 @@ export function AuthProvider({ children }) {
       value={{
         user,
         isGuest: !user,
+        hasEntered,
         loading,
         syncing,
         error,

@@ -38,6 +38,7 @@ export default {
       'expo-asset',
       'expo-font',
       'expo-audio',
+      '@react-native-google-signin/google-signin',
     ],
     extra: {
       apiUrl: process.env.API_URL || 'http://localhost:4000',

@@ -65,8 +65,8 @@ export default function SettingsScreen({ navigation }) {
             {syncing && <Text style={styles.syncing}>syncing…</Text>}
           </View>
           {isGuest ? (
-            <TouchableOpacity style={styles.signinBtn} onPress={() => navigation.navigate('Auth')}>
-              <Text style={styles.signinText}>Sign in to sync across devices</Text>
+            <TouchableOpacity style={styles.signinBtn} onPress={logout}>
+              <Text style={styles.signinText}>Sign in to sync across devices →</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity style={styles.row} onPress={logout}>

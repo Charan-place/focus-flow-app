@@ -24,7 +24,7 @@ const navTheme = {
 };
 
 function Root() {
-  const { loading } = useAuth();
+  const { loading, hasEntered } = useAuth();
 
   useEffect(() => { requestNotificationPermission(); }, []);
 
@@ -36,16 +36,22 @@ function Root() {
     );
   }
 
-  // The app is usable as a guest, so Home is always the entry point.
-  // Auth is presented as a modal route reachable from Settings (or on first run
-  // you can navigate there — here we let guests straight in).
+  // Auth-gated flow: until the user signs in OR picks guest, show AuthScreen.
+  // After that, show the app. Logout flips hasEntered back to false → AuthScreen.
+  if (!hasEntered) {
+    return (
+      <Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
+        <Stack.Screen name="Auth" component={AuthScreen} />
+      </Stack.Navigator>
+    );
+  }
+
   return (
     <FocusProvider>
       <Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Stats" component={StatsScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
-        <Stack.Screen name="Auth" component={AuthScreen} options={{ presentation: 'modal' }} />
       </Stack.Navigator>
     </FocusProvider>
   );
