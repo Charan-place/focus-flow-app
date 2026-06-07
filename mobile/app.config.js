@@ -44,6 +44,10 @@ export default {
       googleWebClientId: process.env.GOOGLE_WEB_CLIENT_ID || '',
       googleIosClientId: process.env.GOOGLE_IOS_CLIENT_ID || '',
       googleAndroidClientId: process.env.GOOGLE_ANDROID_CLIENT_ID || '',
+      eas: {
+        projectId: '3aab25df-1487-4390-963b-41c8d000a308',
+      },
     },
+    owner: 'charan-place',
   },
 };

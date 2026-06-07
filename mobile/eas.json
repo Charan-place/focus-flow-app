@@ -14,7 +14,10 @@
         "buildType": "apk"
       },
       "env": {
-        "API_URL": "https://focusflow-api-jdcu.onrender.com"
+        "API_URL": "https://focusflow-api-jdcu.onrender.com",
+        "GOOGLE_WEB_CLIENT_ID": "8913477009-glkhchdeig9g8h1gbmkcut59jei3nia9.apps.googleusercontent.com",
+        "GOOGLE_IOS_CLIENT_ID": "8913477009-5kcnf1sugfl02t3sb3mu8ehmdsdqomh0.apps.googleusercontent.com",
+        "GOOGLE_ANDROID_CLIENT_ID": "8913477009-40gcj6ovikr1vap7ubb31m825j4mkgql.apps.googleusercontent.com"
       }
     },
     "production": {
@@ -23,7 +26,10 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "API_URL": "https://focusflow-api-jdcu.onrender.com"
+        "API_URL": "https://focusflow-api-jdcu.onrender.com",
+        "GOOGLE_WEB_CLIENT_ID": "8913477009-glkhchdeig9g8h1gbmkcut59jei3nia9.apps.googleusercontent.com",
+        "GOOGLE_IOS_CLIENT_ID": "8913477009-5kcnf1sugfl02t3sb3mu8ehmdsdqomh0.apps.googleusercontent.com",
+        "GOOGLE_ANDROID_CLIENT_ID": "8913477009-40gcj6ovikr1vap7ubb31m825j4mkgql.apps.googleusercontent.com"
       }
     }
   },
