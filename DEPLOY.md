@@ -21,7 +21,7 @@ Phone (APK) ──HTTPS──> Render (backend) ──> MongoDB Atlas
    - `JWT_SECRET` → your secret
    - `GOOGLE_WEB_CLIENT_ID` → your Web client id from Google Cloud Console (the value in `mobile/.env`)
 4. Click **Deploy**. Wait ~2-3 min. You get a URL like:
-   `https://focusflow-api.onrender.com`
+   `https://focusflow-api-jdcu.onrender.com`
 5. Test it: open `https://YOUR-URL.onrender.com/health` in a browser → should show
    `{"ok":true}`.
 

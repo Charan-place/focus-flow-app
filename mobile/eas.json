@@ -14,7 +14,7 @@
         "buildType": "apk"
       },
       "env": {
-        "API_URL": "https://focusflow-api.onrender.com"
+        "API_URL": "https://focusflow-api-jdcu.onrender.com"
       }
     },
     "production": {
@@ -23,7 +23,7 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "API_URL": "https://focusflow-api.onrender.com"
+        "API_URL": "https://focusflow-api-jdcu.onrender.com"
       }
     }
   },
