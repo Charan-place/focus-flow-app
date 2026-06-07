@@ -1,0 +1,21 @@
+node_modules/
+.DS_Store
+*.log
+
+# env / secrets
+.env
+.env.local
+
+# expo
+.expo/
+dist/
+web-build/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# native build output
+ios/
+android/
